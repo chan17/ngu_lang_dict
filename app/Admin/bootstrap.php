@@ -19,3 +19,17 @@
  */
 
 Encore\Admin\Form::forget(['map', 'editor']);
+use App\Admin\Extensions\Column\OpenMap;
+use App\Admin\Extensions\Column\OpenView;
+use App\Admin\Extensions\Column\OpenViewImg;
+use App\Admin\Extensions\Form\WangEditor;
+use App\Admin\Extensions\Form\SearchMap;
+// Form::extend('WangEditor', WangEditor::class);
+// Form::extend('SearchMap', SearchMap::class);
+// 扩展 `ztree` 控件(树状控件)
+// Form::extend('ztree', Ztree::class);
+// Form::extend('ueditor', UEditor::class);
+// Column::extend('OpenViewImg', OpenViewImg::class);
+// Column::extend('Orgdetail', Orgdetail::class);
+// 引入 `layer` 控件
+Admin::js('/packages/admin/layer/layer.js');
