@@ -38,7 +38,8 @@ class MetaTypeController extends Controller
      */
     public function index($group)
     {
-        $content = Admin::content();
+        return Admin::content(function (Content $content) use ($group) {
+
         if ($group == 'region') {
             $content->header('語言地區');
             $content->description('語言地區');
@@ -47,7 +48,9 @@ class MetaTypeController extends Controller
             $content->description('詞性');
         }
 
-        return  $content->body($this->grid($group));
+          $content->body($this->grid($group));
+    });
+
     }
 
     /**
@@ -137,9 +140,8 @@ class MetaTypeController extends Controller
      */
     public function update($group,$id, MetaTypeRequest $request)
     {
-        // dd($group,$id);
         $metaType = $this->metaTypeRepository->findWithoutFail($id);
-
+        
         if (empty($metaType)) {
             Flash::error(__('meta.meta_type.not_found'));
 
@@ -152,7 +154,7 @@ class MetaTypeController extends Controller
 
         Flash::success(__('meta.meta_type.updated_success'));
 
-        return Input::get('_previous_') ? redirect(Input::get('_previous_')) : redirect(route('meta.meta_type.index'));
+        return Input::get('_previous_') ? redirect(Input::get('_previous_')) : redirect(route('meta.meta_type.index',['group'=>$group]));
     }
 
     /**
@@ -200,16 +202,17 @@ class MetaTypeController extends Controller
      */
     protected function form($id='',$group)
     {
-        $form = new Form(new MetaType);
+        return Admin::form(MetaType::class, function (Form $form) use($group){
+
             $form->text('title', '标题');
             $form->select('pid', '上级类型')->options(MetaType::where(['group'=>$group])->pluck('title','type_id'));
             $form->text('remark', '备注');
-            // $form->text('group', '分类');
+            $form->text('group', '分类');
             $form->text('listorder', '排序');
 
-            //$form->display('created_at', __('base.created_at'));
-            //$form->display('updated_at', __('base.updated_at'));
-        return $form;
+            $form->display('created_at', __('base.created_at'));
+            $form->display('updated_at', __('base.updated_at'));
+        });
 
     }
 
@@ -292,7 +295,7 @@ class MetaTypeController extends Controller
             $grid->column('PIDself.title', '上级类型')->sortable();
             $grid->column('remark', '备注')->sortable();
             // $grid->column('group', '分类')->sortable();
-            $grid->column('listorder', '排序')->sortable()->editable();
+            $grid->column('listorder', '排序')->sortable()/* ->editable() */;
 
             /**
              * 过滤处理

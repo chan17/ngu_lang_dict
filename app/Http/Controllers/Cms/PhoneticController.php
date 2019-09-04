@@ -197,7 +197,7 @@ class PhoneticController extends Controller
             $form->text('phonetic_id', '音標ID');
             $form->text('region_type', '地區');
             $form->text('entry_id', '對應詞條');
-            $form->table('value', '音標');
+            $form->text('value', '音標');
 
             $form->display('created_at', __('base.created_at'));
             $form->display('updated_at', __('base.updated_at'));
@@ -283,7 +283,7 @@ class PhoneticController extends Controller
             $grid->column('phonetic_id', '音標ID')->sortable();
             $grid->column('region_type', '地區')->sortable();
             $grid->column('entry_id', '對應詞條')->sortable();
-            $grid->column('value', '音標')->sortable();
+            $grid->column('value', '音標')->sortable()->editable();
 
             /**
              * 过滤处理

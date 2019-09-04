@@ -28,7 +28,7 @@ use App\Admin\Extensions\Column\OpenViewImg;
 use App\Admin\Extensions\Form\WangEditor;
 use App\Admin\Extensions\Form\SearchMap;
 
-Form::extend('WangEditor', WangEditor::class);
+// Form::extend('WangEditor', WangEditor::class);
 Form::extend('SearchMap', SearchMap::class);
 // 扩展 `ztree` 控件(树状控件)
 Column::extend('Orgdetail', Orgdetail::class);
@@ -37,7 +37,6 @@ Column::extend('openView', OpenView::class);
 // Form::extend('ztree', Ztree::class);
 // Form::extend('ueditor', UEditor::class);
 // 引入 `layer` 控件
-Admin::js('/packages/admin/layer/layer.js');
 
 
 // // sun 引入自己加的js

@@ -193,12 +193,10 @@ class EntryController extends Controller
     {
         return Admin::form(Entry::class, function (Form $form) {
 
-            $form->display('id', 'ID');
-            $form->text('entry_id', '詞條ID');
+            // $form->display('entry_id', '詞條ID');
             $form->text('title', '字/詞 方塊字');
             $form->table('explanation', '字詞解釋');
             $form->table('example', '例句');
-            $form->text('', '');
 
             $form->display('created_at', __('base.created_at'));
             $form->display('updated_at', __('base.updated_at'));
