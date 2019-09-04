@@ -44,45 +44,4 @@ class Controller extends BaseController
         return change_list_order($request, $result);
     }
 
-    public function getMeta($name){
-        $oneMeta = \App\Models\Yiru\YiruMetas::where('name',$name)->first()->toArray();
-        // dd($oneMeta);
-        $model = json_decode($oneMeta['model'],true);
-
-        $result['group']=$oneMeta['group'];
-        $result['table']=$model['table'];
-        $result['keyname']=$model['keyname'];
-        return $result;
-    }
-
-    protected static function getMetaName($yiru_meta,$id){
-        //查询yiru_meta映射表名
-        if (empty($id) || empty($yiru_meta) || $id=='00000000') return $id;
-        $model = \App\Models\Yiru\YiruMetas::where('name',$yiru_meta)->value('model');
-
-        if(!$model || !$json = json_decode($model,true)) return $id;
-        
-        $oneMeta = \App\Models\Yiru\YiruMetas::where('name',$yiru_meta)->first()->toArray();
-        if ($oneMeta['group']=='db_yiru_data') {
-            $DBname = '';
-        }else{
-            $DBname = $oneMeta['group'];
-        }
-        try {
-            if(! \Schema::connection($DBname)->hasTable($yiru_meta)){
-                return $id;
-            }
-        } catch (\Exception $e) {
-            return $id;
-        }
-        if(!empty($json['table']) and !empty($json['primary'])){
-            if(empty($json['refer']['label'])) return $id;
-            // dd($json);
-            return \DB::connection($DBname)->table($json['table'])->where($json['primary']['key'],$id)->value($json['refer']['label']);
-        }else{
-            if(empty($json['keyname'])) return $id;
-            return \DB::connection($DBname)->table($yiru_meta)->where($json['keyname'], $id)->value('title');
-        }
-
-    }
 }
