@@ -23,6 +23,7 @@ class MetaType extends Model
 
     public $table = 'meta_type';
     
+    public $primaryKey = 'type_id';
 
     protected $dates = ['deleted_at'];
 
@@ -46,15 +47,7 @@ class MetaType extends Model
         'remark' => 'string'
     ];
 
-    /**
-     * Validation rules
-     *
-     * @var array
-     */
-    public static $rules = [
-        'title' => 'required|max:50:nullable',
-        'remark' => 'max:255:nullable'
-    ];
-
-    
+    public function PIDself() {
+        return $this->hasOne(self::class,'type_id','pid');
+    }
 }

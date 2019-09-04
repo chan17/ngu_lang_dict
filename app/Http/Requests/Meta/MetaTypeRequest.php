@@ -45,7 +45,7 @@ class MetaTypeRequest extends FormRequest
             {
                 $id = $this->route('meta_type');
                 return [
-                    'title' => 'required|max:50:nullable',
+                    // 'title' => 'required|max:50:nullable',
                     'remark' => 'max:255:nullable'
                 ];
             }

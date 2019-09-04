@@ -20,7 +20,7 @@ class Entry extends Model
 
     public $table = 'entries';
     
-
+    public $primaryKey = 'entry_id';
 
     public $fillable = [
         'entry_id',

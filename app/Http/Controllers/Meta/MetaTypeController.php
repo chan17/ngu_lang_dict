@@ -16,6 +16,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Input;
 use Illuminate\Support\Facades\Route;
 use Response;
+use App\Component\Classes\AutoListorder;
 
 
 class MetaTypeController extends Controller
@@ -35,15 +36,18 @@ class MetaTypeController extends Controller
      *
      * @return Response
      */
-    public function index()
+    public function index($group)
     {
-        return Admin::content(function (Content $content) {
+        $content = Admin::content();
+        if ($group == 'region') {
+            $content->header('語言地區');
+            $content->description('語言地區');
+        } elseif ($group == 'POS') {
+            $content->header('詞性');
+            $content->description('詞性');
+        }
 
-            $content->header(__('meta.meta_type.index_header'));
-            $content->description(__('meta.meta_type.index_description'));
-
-            $content->body($this->grid());
-        });
+        return  $content->body($this->grid($group));
     }
 
     /**
@@ -51,14 +55,14 @@ class MetaTypeController extends Controller
      *
      * @return Response
      */
-    public function create()
+    public function create($group)
     {
-        return Admin::content(function (Content $content) {
+        return Admin::content(function (Content $content) use ($group) {
 
             $content->header(__('meta.meta_type.create_header'));
             $content->description(__('meta.meta_type.create_description'));
 
-            $content->body($this->form());
+            $content->body($this->form('',$group));
 
         });
     }
@@ -70,9 +74,11 @@ class MetaTypeController extends Controller
      *
      * @return Response
      */
-    public function store(MetaTypeRequest $request)
+    public function store(MetaTypeRequest $request,$group)
     {
         $input = $request->all();
+        $input['listorder'] = (new AutoListorder(new MetaType()))->setFieldValue(['pid'=>$input['pid']])->getListOrder();
+        $input['group'] = $group;
 
         $metaType = $this->metaTypeRepository->create($input);
 
@@ -110,14 +116,14 @@ class MetaTypeController extends Controller
      *
      * @return Response
      */
-    public function edit($id)
+    public function edit($group,$id)
     {
-        return Admin::content(function (Content $content) use ($id) {
+        return Admin::content(function (Content $content) use ($id,$group) {
 
             $content->header(__('meta.meta_type.edit_header'));
             $content->description(__('meta.meta_type.edit_description'));
 
-            $content->body($this->form($id)->edit($id));
+            $content->body($this->form($id,$group)->edit($id));
         });
     }
 
@@ -129,8 +135,9 @@ class MetaTypeController extends Controller
      *
      * @return Response
      */
-    public function update($id, MetaTypeRequest $request)
+    public function update($group,$id, MetaTypeRequest $request)
     {
+        // dd($group,$id);
         $metaType = $this->metaTypeRepository->findWithoutFail($id);
 
         if (empty($metaType)) {
@@ -138,8 +145,10 @@ class MetaTypeController extends Controller
 
             return redirect(route('meta.meta_type.index'));
         }
+        $input = $request->all();
+        $input['group'] = $group;
 
-        $metaType = $this->metaTypeRepository->update($request->all(), $id);
+        $metaType = $this->metaTypeRepository->update($input, $id);
 
         Flash::success(__('meta.meta_type.updated_success'));
 
@@ -189,16 +198,14 @@ class MetaTypeController extends Controller
      * [form description]
      * @return {[type]} [description]
      */
-    protected function form($id='')
+    protected function form($id='',$group)
     {
         $form = new Form(new MetaType);
-            //$form->display('id', 'ID');
             $form->text('title', '标题');
-            $form->select('pid', '上级类型');
+            $form->select('pid', '上级类型')->options(MetaType::where(['group'=>$group])->pluck('title','type_id'));
             $form->text('remark', '备注');
-            $form->text('group', '分类');
+            // $form->text('group', '分类');
             $form->text('listorder', '排序');
-            $form->text('', '');
 
             //$form->display('created_at', __('base.created_at'));
             //$form->display('updated_at', __('base.updated_at'));
@@ -210,13 +217,11 @@ class MetaTypeController extends Controller
      * [grid description]
      * @return {[type]} [description]
      */
-    protected function grid()
+    protected function grid($group)
     {
-
-        return Admin::grid(MetaType::class, function (Grid $grid) {
+        return Admin::grid(MetaType::class, function (Grid $grid) use ($group){
             // 考虑是否需要scope和排序
-            // $grid->model()->orderBy('listorder', 'asc');
-
+            $grid->model()->orderBy('listorder', 'desc');
             // // 添加按钮
             // if (!\Gate::check('meta.meta_type.create')) {
             //     $grid->disableCreation();
@@ -264,6 +269,8 @@ class MetaTypeController extends Controller
                 $actions->disableDelete();
                 if (Admin::user()->cannot('meta.meta_type.destroy')) {
                 }
+
+                // \App\Admin\Extensions\Actions\AutoListorder::render($actions);
             });
 
             // 导出按钮
@@ -282,18 +289,22 @@ class MetaTypeController extends Controller
             });
 
             $grid->column('title', '标题')->sortable();
-            $grid->column('pid', '上级类型')->sortable();
+            $grid->column('PIDself.title', '上级类型')->sortable();
             $grid->column('remark', '备注')->sortable();
-            $grid->column('group', '分类')->sortable();
-            $grid->column('listorder', '排序')->sortable();
+            // $grid->column('group', '分类')->sortable();
+            $grid->column('listorder', '排序')->sortable()->editable();
 
             /**
              * 过滤处理
              */
-            $grid->filter(function ($filter) {
-                // // 禁用id查询框
-                // $filter->disableIdFilter();
-
+            $grid->filter(function ($filter)  use ($group){
+                $filter->disableIdFilter();
+                $filter->column(1 / 2, function ($filter) use ($group){
+                    $filter->equal('pid', '上级类型')->select(MetaType::where(['group' => $group])->pluck('title', 'type_id'));
+                });
+                $filter->column(1 / 2, function ($filter) {
+                    $filter->like('title', '标题');
+                });
             });
         });
     }

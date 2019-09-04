@@ -22,7 +22,7 @@ class AutoListorder /* extends AbstractDisplayer */
         $routeAsColl  = explode('.', $routeArray['as']);
         $currModle = "\App\Models\\".$folder."\\".$controller;
 
-        (new \App\Component\Classes\AutoListorder(new $currModle()))->init_list_order($currModle);
+        // (new \App\Component\Classes\AutoListorder(new $currModle()));
 
         $maxListorder = $currModle::query()
             ->max('listorder');

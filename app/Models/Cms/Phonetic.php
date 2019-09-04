@@ -20,7 +20,7 @@ class Phonetic extends Model
 
     public $table = 'phonetics';
     
-
+    public $primaryKey = 'phonetic_id';
 
     public $fillable = [
         'phonetic_id',
