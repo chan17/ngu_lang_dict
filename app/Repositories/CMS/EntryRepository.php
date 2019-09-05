@@ -30,4 +30,16 @@ class EntryRepository extends BaseRepository
     {
         return Entry::class;
     }
+
+    public function edit($data,$id){
+
+        \DB::beginTransaction();
+        if (!$this->model()->where('entry_id', $id)->update()) {
+            \DB::rollBack();
+        }
+        \DB::rollBack();
+    \DB::commit();
+    \DB::rollBack();
+
+    }
 }

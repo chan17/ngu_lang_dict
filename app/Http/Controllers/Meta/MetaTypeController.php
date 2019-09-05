@@ -204,8 +204,8 @@ class MetaTypeController extends Controller
     {
         return Admin::form(MetaType::class, function (Form $form) use($group){
 
-            $form->text('title', '标题');
-            $form->select('pid', '上级类型')->options(MetaType::where(['group'=>$group])->pluck('title','type_id'));
+            $form->text('title', '標題');
+            $form->select('pid', '上级標題')->options(MetaType::where(['group'=>$group])->pluck('title','type_id'));
             $form->text('remark', '备注');
             $form->text('group', '分类');
             $form->text('listorder', '排序');
@@ -225,6 +225,7 @@ class MetaTypeController extends Controller
         return Admin::grid(MetaType::class, function (Grid $grid) use ($group){
             // 考虑是否需要scope和排序
             $grid->model()->orderBy('listorder', 'desc');
+            $grid->model()->where('group', '=', $group);
             // // 添加按钮
             // if (!\Gate::check('meta.meta_type.create')) {
             //     $grid->disableCreation();
@@ -291,8 +292,9 @@ class MetaTypeController extends Controller
                 });
             });
 
-            $grid->column('title', '标题')->sortable();
-            $grid->column('PIDself.title', '上级类型')->sortable();
+            $grid->column('type_id', 'ID')->sortable();
+            $grid->column('title', '標題')->sortable();
+            $grid->column('PIDself.title', '上级標題')->sortable();
             $grid->column('remark', '备注')->sortable();
             // $grid->column('group', '分类')->sortable();
             $grid->column('listorder', '排序')->sortable()/* ->editable() */;
@@ -303,10 +305,10 @@ class MetaTypeController extends Controller
             $grid->filter(function ($filter)  use ($group){
                 $filter->disableIdFilter();
                 $filter->column(1 / 2, function ($filter) use ($group){
-                    $filter->equal('pid', '上级类型')->select(MetaType::where(['group' => $group])->pluck('title', 'type_id'));
+                    $filter->equal('pid', '上级標題')->select(MetaType::where(['group' => $group])->pluck('title', 'type_id'));
                 });
                 $filter->column(1 / 2, function ($filter) {
-                    $filter->like('title', '标题');
+                    $filter->like('title', '標題');
                 });
             });
         });

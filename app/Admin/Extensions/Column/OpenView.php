@@ -7,20 +7,21 @@ use Encore\Admin\Grid\Displayers\AbstractDisplayer;
 
 class OpenView extends AbstractDisplayer
 {
-    public function display(\Closure $callback = null, $btn = '')
-    {
-        $callback = $callback->bindTo($this->row);
+  public function display(\Closure $callback = null, $btn = '')
+  {
+    $callback = $callback->bindTo($this->row);
 
-        list($param) = call_user_func($callback);
+    $param = call_user_func($callback);
+    if (is_array($param)) {
+      $param = $param[0];
+    }
+    $key = $this->getKey();
 
-        $key = $this->getKey();
+    $name = $this->column->getName();
 
-        $name = $this->column->getName();
+    Admin::script($this->script());
 
-
-        Admin::script($this->script());
-
-        return <<<EOT
+    return <<<EOT
 <button class="btn btn-xs btn-default grid-open-map" data-key="{$key}"  data-toggle="modal" data-target="#grid-modal-{$name}-{$key}">
     $btn
 </button>
@@ -42,11 +43,11 @@ class OpenView extends AbstractDisplayer
   <!-- /.modal-dialog -->
 </div>
 EOT;
-    }
+  }
 
-    protected function script()
-    {
-        return <<<EOT
+  protected function script()
+  {
+    return <<<EOT
 
 $('.grid-open-map').on('click', function() {
 
@@ -54,5 +55,5 @@ $('.grid-open-map').on('click', function() {
 });
 
 EOT;
-    }
+  }
 }

@@ -3,6 +3,7 @@
 namespace App\Models\Cms;
 
 use Illuminate\Database\Eloquent\Model as Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
  * Class Phonetic
@@ -18,12 +19,14 @@ use Illuminate\Database\Eloquent\Model as Model;
 class Phonetic extends Model
 {
 
+    use SoftDeletes;
     public $table = 'phonetics';
     
     public $primaryKey = 'phonetic_id';
+    protected $dates = ['deleted_at'];
 
     public $fillable = [
-        'phonetic_id',
+        // 'phonetic_id',
         'region_type',
         'entry_id',
         'value',
@@ -49,5 +52,9 @@ class Phonetic extends Model
         
     ];
 
+    public function Entry()
+    {
+        return $this->belongsTo('\App\Models\Cms\Entry', 'entry_id','entry_id');
+    }
     
 }

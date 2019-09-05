@@ -3,6 +3,7 @@
 namespace App\Models\Cms;
 
 use Illuminate\Database\Eloquent\Model as Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
  * Class Entry
@@ -17,17 +18,18 @@ use Illuminate\Database\Eloquent\Model as Model;
  */
 class Entry extends Model
 {
+    use SoftDeletes;
 
     public $table = 'entries';
+    protected $dates = ['deleted_at'];
     
     public $primaryKey = 'entry_id';
 
     public $fillable = [
-        'entry_id',
+        // 'entry_id',
         'title',
         'explanation',
         'example',
-        ''
     ];
 
     /**
@@ -36,9 +38,10 @@ class Entry extends Model
      * @var array
      */
     protected $casts = [
-        'title' => 'string'
+        'title' => 'string',
+        'explanation' => 'json',
+        'example' => 'json',
     ];
-
     /**
      * Validation rules
      *
@@ -48,5 +51,44 @@ class Entry extends Model
         'title' => 'required|max:32'
     ];
 
+    public function getExplanationAttribute($explanation)
+    {
+        $result = array_values(json_decode($explanation, true) ?: []);
+        if (!empty($result)) {
+            foreach ($result as $key => $value) {
+                if ($value['_remove_']==1) {
+                    unset($result[$key]);
+                }
+            }
+        }
+        return $result;
+    }
+
+    public function setExplanationAttribute($explanation)
+    {
+        $this->attributes['explanation'] = json_encode(array_values($explanation));
+    }
+
+    public function getExampleAttribute($example)
+    {
+        $result = array_values(json_decode($example, true) ?: []);
+        if (!empty($result)) {
+            foreach ($result as $key => $value) {
+                if ($value['_remove_']==1) {
+                    unset($result[$key]);
+                }
+            }
+        }
+        return $result;
+    }
+
+    public function setExampleAttribute($example)
+    {
+        $this->attributes['example'] = json_encode(array_values($example));
+    }
     
+    public function phonetics()
+    {
+        return $this->hasMany(Phonetic::class, 'entry_id','entry_id');
+    }
 }

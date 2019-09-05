@@ -193,10 +193,9 @@ class PhoneticController extends Controller
     {
         return Admin::form(Phonetic::class, function (Form $form) {
 
-            $form->display('id', 'ID');
-            $form->text('phonetic_id', '音標ID');
-            $form->text('region_type', '地區');
-            $form->text('entry_id', '對應詞條');
+            // $form->display('phonetic_id', '音標ID');
+            $form->select('region_type', '地區')->options(\App\Models\Meta\MetaType::where(['group'=>'region'])->pluck('title','type_id'));
+            $form->display('entry_id', '對應詞條');
             $form->text('value', '音標');
 
             $form->display('created_at', __('base.created_at'));

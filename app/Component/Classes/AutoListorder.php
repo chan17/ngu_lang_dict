@@ -44,5 +44,26 @@ class AutoListorder
 
         return $listOrder + 1;
     }
+    public function init_list_order($model,$order='listorder') {
 
+        $max = $model::query()->max($order);
+        //var_dump($max);die;
+
+        if(!$max || $max=="" || $max==NULL) {
+            $max = 0;
+        }
+
+        $instance = $model::where('listorder','')->orWhere('listorder',NULL)
+        ->get();
+        // ->havingRaw('count(listorder) > 1')
+
+        $list_order = 1;
+        foreach ($instance as $key => $value) {
+            $value->listorder = $max + $list_order;
+            $value->save();
+
+            $list_order = $list_order + 1;
+        }
+
+    }
 }
