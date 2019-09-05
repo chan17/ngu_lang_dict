@@ -10,7 +10,6 @@ class OpenView extends AbstractDisplayer
   public function display(\Closure $callback = null, $btn = '')
   {
     $callback = $callback->bindTo($this->row);
-
     $param = call_user_func($callback);
     if (is_array($param)) {
       $param = $param[0];

@@ -52,7 +52,7 @@ class Phonetic extends Model
         
     ];
 
-    public function Entry()
+    public function entry()
     {
         return $this->belongsTo('\App\Models\Cms\Entry', 'entry_id','entry_id');
     }

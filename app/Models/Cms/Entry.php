@@ -47,21 +47,47 @@ class Entry extends Model
      *
      * @var array
      */
-    public static $rules = [
-        'title' => 'required|max:32'
-    ];
+    public function rules()
+    {
+        switch($this->method())
+        {
+            case 'GET':
+            case 'DELETE':
+            {
+                return [];
+            }
+            // Crate
+            case 'POST':
+            {
+                return [
+                    'title' => 'required|max:32'
+                ];
+            }
+            // UPDATE
+            case 'PUT':
+            case 'PATCH':
+            {
+                $id = $this->route('entries');
+                return [
+                    'title' => 'required|max:32'
+                ];
+            }
+            default:
+                break;
+        }
+    }
 
     public function getExplanationAttribute($explanation)
     {
-        $result = array_values(json_decode($explanation, true) ?: []);
-        if (!empty($result)) {
-            foreach ($result as $key => $value) {
-                if ($value['_remove_']==1) {
-                    unset($result[$key]);
-                }
-            }
-        }
-        return $result;
+         return array_values(json_decode($explanation, true) ?: []);
+        // if (!empty($result)) {
+        //     foreach ($result as $key => $value) {
+        //         if ($value['_remove_']==1) {
+        //             unset($result[$key]);
+        //         }
+        //     }
+        // }
+        // return $result;
     }
 
     public function setExplanationAttribute($explanation)
@@ -71,15 +97,15 @@ class Entry extends Model
 
     public function getExampleAttribute($example)
     {
-        $result = array_values(json_decode($example, true) ?: []);
-        if (!empty($result)) {
-            foreach ($result as $key => $value) {
-                if ($value['_remove_']==1) {
-                    unset($result[$key]);
-                }
-            }
-        }
-        return $result;
+        return array_values(json_decode($example, true) ?: []);
+        // if (!empty($result)) {
+        //     foreach ($result as $key => $value) {
+        //         if ($value['_remove_']==1) {
+        //             unset($result[$key]);
+        //         }
+        //     }
+        // }
+        // return $result;
     }
 
     public function setExampleAttribute($example)

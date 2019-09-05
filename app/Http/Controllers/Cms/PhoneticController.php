@@ -281,7 +281,7 @@ class PhoneticController extends Controller
 
             $grid->column('phonetic_id', '音標ID')->sortable();
             $grid->column('region_type', '地區')->sortable();
-            $grid->column('entry_id', '對應詞條')->sortable();
+            $grid->column('entry.title', '對應詞條')->sortable();
             $grid->column('value', '音標')->sortable()->editable();
 
             /**

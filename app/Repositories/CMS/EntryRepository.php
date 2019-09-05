@@ -32,14 +32,15 @@ class EntryRepository extends BaseRepository
     }
 
     public function edit($data,$id){
-
+        dd($this->model);
+        unset($data['_token']);
+        unset($data['_method']);
         \DB::beginTransaction();
-        if (!$this->model()->where('entry_id', $id)->update()) {
+        if (!$this->model->where('entry_id', $id)->save($data)) {
             \DB::rollBack();
+            return '詞條數據出錯';
         }
-        \DB::rollBack();
-    \DB::commit();
-    \DB::rollBack();
-
+        
+        \DB::commit();
     }
 }
