@@ -14,3 +14,9 @@
 Route::get('/', function () {
     return view('welcome');
 });
+
+Route::get('fullentry/index','Api\FullEntryController@index');
+Route::get('fullentry/detail','Api\FullEntryController@detail');
+
+Route::get('metatype/listTree/{group}','Api\MetaTypeController@listTree');
+Route::get('metatype/list/{group}','Api\MetaTypeController@list');

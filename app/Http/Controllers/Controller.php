@@ -24,6 +24,15 @@ class Controller extends BaseController
         return $result;
     }
 
+    public function buildJson($isSucc, $msg = '', $data = '')
+    {
+        if ($isSucc) {
+            return response()->json(['status' => 1, 'msg' => $msg, 'data' => $data]);
+        } else {
+            return response()->json(['status' => 0, 'msg' => $msg]);
+        }
+    }
+
     public function ossInBaseCtrl($url) {
         $picture = file_get_contents($url);
 
