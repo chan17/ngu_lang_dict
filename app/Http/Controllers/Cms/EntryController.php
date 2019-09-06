@@ -68,7 +68,7 @@ class EntryController extends AdminController
             // 去掉查看
             $actions->disableView();
             $url = route('cms.phonetics.index',['entry_id'=>$actions->row->entry_id]);
-            $actions->append('<a href="' . $url .'" >&nbsp; 跳轉到注音</a>');
+            $actions->append('<a href="' . $url .'" >&nbsp; 跳轉到註音</a>');
              
         });
         
@@ -98,7 +98,7 @@ class EntryController extends AdminController
             $table->textarea('value','例句')->rows(2);
         });
 
-        $form->hasMany('phonetics', '注音', function (Form\NestedForm $form) {
+        $form->hasMany('phonetics', '註音', function (Form\NestedForm $form) {
             $form->select('region_type', '地區')->options(MetaType::selectOptions(function ($query){
                 return $query->where(['group'=>'region']);
             },''))->rules('required');
@@ -120,7 +120,7 @@ class EntryController extends AdminController
             }
             // Entry::
             if ($form->phonetics == null) {
-                admin_warning('當心', '請填寫注音', ['timeOut' => 5000]);
+                admin_warning('當心', '請填寫註音', ['timeOut' => 5000]);
                 return back()->withInput();
             }
         });

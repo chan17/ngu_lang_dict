@@ -207,7 +207,7 @@ class EntryController extends Controller
                 $table->textarea('value','例句')->rows(2);
             });
 
-            $form->hasMany('phonetics', '注音', function (Form\NestedForm $form) {
+            $form->hasMany('phonetics', '註音', function (Form\NestedForm $form) {
                 $form->select('region_type', '地區')->options(\App\Models\Meta\MetaType::where(['group'=>'region'])->pluck('title','type_id'));
                 $form->text('value', '音標');
             });
