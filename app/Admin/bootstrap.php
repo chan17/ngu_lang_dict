@@ -20,6 +20,7 @@
 use Encore\Admin\Form;
 use Encore\Admin\Grid\Column;
 
+
 Encore\Admin\Form::forget(['map', 'editor']);
 
 use App\Admin\Extensions\Column\OpenMap;
@@ -27,6 +28,8 @@ use App\Admin\Extensions\Column\OpenView;
 use App\Admin\Extensions\Column\OpenViewImg;
 use App\Admin\Extensions\Form\WangEditor;
 use App\Admin\Extensions\Form\SearchMap;
+
+app('view')->prependNamespace('admin', resource_path('views/admin'));
 
 // Form::extend('WangEditor', WangEditor::class);
 Form::extend('SearchMap', SearchMap::class);

@@ -16,6 +16,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Input;
 use Illuminate\Support\Facades\Route;
 use Response;
+use App\Models\Meta\MetaType;
 
 
 class PhoneticController extends Controller
@@ -194,9 +195,11 @@ class PhoneticController extends Controller
         return Admin::form(Phonetic::class, function (Form $form) {
 
             // $form->display('phonetic_id', '音標ID');
-            $form->select('region_type', '地區')->options(\App\Models\Meta\MetaType::where(['group'=>'region'])->pluck('title','type_id'));
+            $form->select('region_type', '地區')->options(MetaType::selectOptions(function ($query){
+                return $query->where(['group'=>'region']);
+            },''));
             $form->display('entry_id', '對應詞條');
-            $form->text('value', '音標');
+            $form->text('value', '吳拼');
 
             $form->display('created_at', __('base.created_at'));
             $form->display('updated_at', __('base.updated_at'));
@@ -280,17 +283,25 @@ class PhoneticController extends Controller
             });
 
             $grid->column('phonetic_id', '音標ID')->sortable();
-            $grid->column('region_type', '地區')->sortable();
+            $grid->column('meta_type.title', '地區')->sortable();
             $grid->column('entry.title', '對應詞條')->sortable();
-            $grid->column('value', '音標')->sortable()->editable();
+            $grid->column('value', '吳拼')->sortable()->editable();
 
             /**
              * 过滤处理
              */
             $grid->filter(function ($filter) {
                 // // 禁用id查询框
-                // $filter->disableIdFilter();
-
+                $filter->disableIdFilter();
+                $filter->column(1 / 2, function ($filter) {
+                    $filter->like('phonetic_id', '音標ID');
+                    $filter->equal('region_type', '地區')->select(MetaType::selectOptions(function ($query){
+                        return $query->where(['group'=>'region']);
+                    },''));
+                });
+                $filter->column(1 / 2, function ($filter) {
+                    $filter->equal('entry_id', '對應詞條');
+                });
             });
         });
     }

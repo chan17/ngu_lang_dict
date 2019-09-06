@@ -56,5 +56,8 @@ class Phonetic extends Model
     {
         return $this->belongsTo('\App\Models\Cms\Entry', 'entry_id','entry_id');
     }
-    
+    public function meta_type()
+    {
+        return $this->belongsTo('\App\Models\Meta\MetaType', 'region_type','type_id');
+    }
 }

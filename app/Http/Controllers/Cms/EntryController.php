@@ -56,7 +56,9 @@ class EntryController extends AdminController
             $filter->disableIdFilter();
             $filter->column(1 / 2, function ($filter){
                 $filter->like('entry_id', '詞條ID');
-                $filter->like('explanation', '詞性')->select(MetaType::where(['group' => 'POS'])->pluck('title', 'type_id'));
+                $filter->like('explanation', '詞性')->select(MetaType::selectOptions(function ($query){
+                    return $query->where(['group'=>'POS']);
+                },''));
             });
             $filter->column(1 / 2, function ($filter) {
                 $filter->like('title', '字/詞 方塊字');
@@ -65,19 +67,31 @@ class EntryController extends AdminController
         $grid->actions(function ($actions) {
             // 去掉查看
             $actions->disableView();
+            $url = route('cms.phonetics.index',['entry_id'=>$actions->row->entry_id]);
+            $actions->append('<a href="' . $url .'" >&nbsp; 跳轉到注音</a>');
+             
         });
         
         return $grid;
     }
-
+    public function update($id)
+    {
+        return $this->form($id)->update($id);
+    }
     protected function form()
     {
         $form = new Form(new Entry);
 
         // $form->display('entry_id', '詞條ID');
-        $form->text('title', '字/詞 方塊字')->rules('required|max:32');
+        $form->text('title', '字/詞 方塊字')->rules('required');
+    
+            // ->creationRules(['required','max:32', "unique:entries"])
+            // ->updateRules(['required','max:32', "unique:entries,title,{{id}}"]);
+            
         $form->table('explanation', '字詞解釋', function ($table) {
-            $table->select('POS','詞性')->options(\App\Models\Meta\MetaType::where(['group'=>'POS'])->orderBy('listorder','desc')->pluck('title','type_id'));
+            $table->select('POS','詞性')->options(MetaType::selectOptions(function ($query){
+                return $query->where(['group'=>'POS'])->orderBy('listorder','asc');
+            },''));
             $table->text('value','解釋');
         });
         $form->table('example', '例句', function ($table) {
@@ -85,13 +99,26 @@ class EntryController extends AdminController
         });
 
         $form->hasMany('phonetics', '注音', function (Form\NestedForm $form) {
-            $form->select('region_type', '地區')->options(\App\Models\Meta\MetaType::where(['group'=>'region'])->pluck('title','type_id'))->rules('required');
-            $form->text('value', '音標')->rules('required');
+            $form->select('region_type', '地區')->options(MetaType::selectOptions(function ($query){
+                return $query->where(['group'=>'region']);
+            },''))->rules('required');
+            $form->text('value', '吳拼')->rules('required');
         });
         // $form->display('created_at', __('base.created_at'));
         // $form->display('updated_at', __('base.updated_at'));
+        $form->submitted(function (Form $form) {
+            // dd($form);exit;
+        });
         $form->saving(function (Form $form) {
-            // dd($form->phonetics == null,$form->phonetics);
+            $where = [['title','=',$form->title]];
+            if($form->model()->entry_id != null){
+                $where[] = ['entry_id','<>',$form->model()->entry_id];
+            }
+            if(Entry::where($where)->exists()){
+                admin_warning('當心', '當前字詞已存在, 可點擊右邊鏈接： <a target="_blank" href="/admin/cms/entries?title='.$form->title.'">__'.$form->title.'__</a>', ['timeOut' => 5000]);
+                return back()->withInput();
+            }
+            // Entry::
             if ($form->phonetics == null) {
                 admin_warning('當心', '請填寫注音', ['timeOut' => 5000]);
                 return back()->withInput();

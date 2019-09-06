@@ -4,7 +4,8 @@ namespace App\Models\Meta;
 
 use Eloquent as Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-
+use Encore\Admin\Traits\AdminBuilder;
+use Encore\Admin\Traits\ModelTree;
 /**
  * Class MetaType
  * @package App\Models\Meta
@@ -20,13 +21,22 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class MetaType extends Model
 {
     use SoftDeletes;
+    use ModelTree, AdminBuilder;
 
     public $table = 'meta_type';
     
     public $primaryKey = 'type_id';
 
     protected $dates = ['deleted_at'];
+    
+    public function __construct(array $attributes = [])
+    {
+        parent::__construct($attributes);
 
+        $this->setParentColumn('pid');
+        $this->setOrderColumn('listorder');
+        $this->setTitleColumn('title');
+    }
 
     public $fillable = [
         'title',

@@ -16,8 +16,11 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Input;
 use Illuminate\Support\Facades\Route;
 use Response;
-use App\Component\Classes\AutoListorder;
 
+use Encore\Admin\Widgets\Box;
+use Encore\Admin\Layout\Row;
+use Encore\Admin\Tree;
+use Encore\Admin\Layout\Column;
 
 class MetaTypeController extends Controller
 {
@@ -30,7 +33,18 @@ class MetaTypeController extends Controller
     {
         $this->metaTypeRepository = $metaTypeRepo;
     }
-
+    protected function treeView()
+    {
+        return MetaType::tree(function (Tree $tree) {
+            $tree->disableCreate();
+            $tree->branch(function($branch){
+                $key = $branch['type_id'];
+                $title = $branch['title'];
+                return "$key - $title";
+            });
+            return $tree;
+        });
+    }
     /**
      * Display a listing of the MetaType.
      *
@@ -48,7 +62,33 @@ class MetaTypeController extends Controller
             $content->description('詞性');
         }
 
-          $content->body($this->grid($group));
+        $content->row(function (Row $row) use ($group) {
+            $row->column(6, $this->treeView()->query(function($query) use ($group) {
+                    return $query->where('group',$group)->orderBy('listorder', 'asc');
+            })->render());
+    
+            $row->column(6, function (Column $column) use ($group) {
+                $form = new \Encore\Admin\Widgets\Form();
+                $form->action(admin_base_path('meta/meta_type/'.$group));
+
+                // $menuModel = config('admin.database.menu_model');
+                // $permissionModel = config('admin.database.permissions_model');
+                // $roleModel = config('admin.database.roles_model');
+
+                $form->text('title', '標題')->rules('required|max:50');
+                $form->select('pid', '上级標題')->options(MetaType::selectOptions(function ($query) use ($group) {
+                    return $query->where(['group'=>$group]);
+                },'无'));
+                // ->options(MetaType::where(['group'=>$group])->pluck('title','type_id'));
+                $form->text('remark', '备注')->rules('max:255');
+
+                $form->hidden('_token')->default(csrf_token());
+                $form->hidden('group')->default($group);
+
+                $column->append((new Box(trans('admin.new'), $form))->style('success'));
+            });
+        });
+        //   $content->body($this->grid($group));
     });
 
     }
@@ -65,12 +105,11 @@ class MetaTypeController extends Controller
             $content->header(__('meta.meta_type.create_header'));
             $content->description(__('meta.meta_type.create_description'));
 
-            $content->body($this->form('',$group));
+            $content->body($this->form($group));
 
         });
     }
-
-    /**
+/**
      * Store a newly created MetaType in storage.
      *
      * @param MetaTypeRequest $request
@@ -80,35 +119,12 @@ class MetaTypeController extends Controller
     public function store(MetaTypeRequest $request,$group)
     {
         $input = $request->all();
-        $input['listorder'] = (new AutoListorder(new MetaType()))->setFieldValue(['pid'=>$input['pid']])->getListOrder();
-        $input['group'] = $group;
 
         $metaType = $this->metaTypeRepository->create($input);
 
         Flash::success(__('meta.meta_type.saved_success'));
 
-        return Input::get('_previous_') ? redirect(Input::get('_previous_')) : redirect(route('meta.meta_type.index'));
-
-    }
-
-    /**
-     * Display the specified MetaType.
-     *
-     * @param  int $id
-     *
-     * @return Response
-     */
-    public function show($id)
-    {
-        $metaType = $this->metaTypeRepository->findWithoutFail($id);
-
-        if (empty($metaType)) {
-            Flash::error(__('meta.meta_type.not_found'));
-
-            return redirect(route('meta.meta_type.index'));
-        }
-
-        return view('meta.meta_type.show')->with('metaType', $metaType);
+        return Input::get('_previous_') ? redirect(Input::get('_previous_')) : redirect(route('meta.meta_type.index',['group'=>$group]));
 
     }
 
@@ -126,18 +142,10 @@ class MetaTypeController extends Controller
             $content->header(__('meta.meta_type.edit_header'));
             $content->description(__('meta.meta_type.edit_description'));
 
-            $content->body($this->form($id,$group)->edit($id));
+            $content->body($this->form($group,$id)->edit($id));
         });
     }
 
-    /**
-     * Update the specified MetaType in storage.
-     *
-     * @param  int              $id
-     * @param MetaTypeRequest $request
-     *
-     * @return Response
-     */
     public function update($group,$id, MetaTypeRequest $request)
     {
         $metaType = $this->metaTypeRepository->findWithoutFail($id);
@@ -145,26 +153,24 @@ class MetaTypeController extends Controller
         if (empty($metaType)) {
             Flash::error(__('meta.meta_type.not_found'));
 
-            return redirect(route('meta.meta_type.index'));
+            return redirect(route('meta.meta_type.index',['group'=>$group]));
         }
         $input = $request->all();
-        $input['group'] = $group;
+        // $input['group'] = $group;
 
         $metaType = $this->metaTypeRepository->update($input, $id);
 
         Flash::success(__('meta.meta_type.updated_success'));
 
         return Input::get('_previous_') ? redirect(Input::get('_previous_')) : redirect(route('meta.meta_type.index',['group'=>$group]));
-    }
-
-    /**
+    }    /**
      * Remove the specified MetaType from storage.
      *
      * @param  int $id
      *
      * @return Response
      */
-    public function destroy($id)
+    public function destroy($group,$id)
     {
         // 根据 `,` 判断传递过来的是单个id还是多个id
         if (substr_count($id, ',') >= 1) {
@@ -173,7 +179,7 @@ class MetaTypeController extends Controller
 
         // 如果是数组则进行批量删除
         if (is_array($id)) {
-            if ($flag = $this->metaTypeRepository->batchDelete('id', $id)) {
+            if ($flag = $this->metaTypeRepository->batchDelete('type_id', $id)) {
                 return response()->json(['message' => __('meta.meta_type.deleted_success'), 'status' => $flag]);
             } else {
                 return response()->json(['message' => __('base.deleted.error'), 'status' => $flag]);
@@ -185,7 +191,7 @@ class MetaTypeController extends Controller
         if (empty($metaType)) {
             Flash::error(__('meta.meta_type.not_found'));
 
-            return redirect(route('meta.meta_type.index'));
+            return redirect(route('meta.meta_type.index',['group'=>$group],['group'=>$group]));
         }
 
         if ($flag = $this->metaTypeRepository->delete($id)) {
@@ -200,14 +206,16 @@ class MetaTypeController extends Controller
      * [form description]
      * @return {[type]} [description]
      */
-    protected function form($id='',$group)
+    protected function form($group,$id='')
     {
         return Admin::form(MetaType::class, function (Form $form) use($group){
 
             $form->text('title', '標題');
-            $form->select('pid', '上级標題')->options(MetaType::where(['group'=>$group])->pluck('title','type_id'));
+            $form->select('pid', '上级標題')->options(MetaType::selectOptions(function ($query) use ($group) {
+                return $query->where(['group'=>$group]);
+            },'无'));
             $form->text('remark', '备注');
-            $form->text('group', '分类');
+            // $form->text('group', '分类');
             $form->text('listorder', '排序');
 
             $form->display('created_at', __('base.created_at'));
@@ -224,7 +232,7 @@ class MetaTypeController extends Controller
     {
         return Admin::grid(MetaType::class, function (Grid $grid) use ($group){
             // 考虑是否需要scope和排序
-            $grid->model()->orderBy('listorder', 'desc');
+            $grid->model()->orderBy('listorder', 'asc');
             $grid->model()->where('group', '=', $group);
             // // 添加按钮
             // if (!\Gate::check('meta.meta_type.create')) {
@@ -305,7 +313,9 @@ class MetaTypeController extends Controller
             $grid->filter(function ($filter)  use ($group){
                 $filter->disableIdFilter();
                 $filter->column(1 / 2, function ($filter) use ($group){
-                    $filter->equal('pid', '上级標題')->select(MetaType::where(['group' => $group])->pluck('title', 'type_id'));
+                    $filter->equal('pid', '上级標題')->options(MetaType::selectOptions(function ($query) use ($group) {
+                        return $query->where(['group'=>$group]);
+                    },'无'));
                 });
                 $filter->column(1 / 2, function ($filter) {
                     $filter->like('title', '標題');

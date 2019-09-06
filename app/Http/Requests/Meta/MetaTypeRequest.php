@@ -35,8 +35,8 @@ class MetaTypeRequest extends FormRequest
             case 'POST':
             {
                 return [
-                    'title' => 'required|max:50:nullable',
-                    'remark' => 'max:255:nullable'
+                    // 'title' => 'required|max:50:nullable',
+                    // 'remark' => 'max:255:nullable'
                 ];
             }
             // UPDATE
@@ -46,7 +46,7 @@ class MetaTypeRequest extends FormRequest
                 $id = $this->route('meta_type');
                 return [
                     // 'title' => 'required|max:50:nullable',
-                    'remark' => 'max:255:nullable'
+                    // 'remark' => 'max:255:nullable'
                 ];
             }
             default:
