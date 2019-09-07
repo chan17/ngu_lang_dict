@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\DB;
 
+use \Yurun\Util\Chinese;
+
 class FullEntryController extends Controller
 {
     // 請求方法：get
@@ -16,6 +18,10 @@ class FullEntryController extends Controller
         if (empty($requestData['keyword'])) {
             return $this->buildJson(false, '請填寫參數keyword');
         }
+        
+        // 繁体转换成简体
+        $requestData['keyword'] = Chinese::toTraditional($requestData['keyword']);
+
         $resEntries = DB::table('entries')->whereNull('deleted_at')->where('title', 'like', '%'.$requestData['keyword'].'%')
         ->get(['entry_id' ,'title'/* ,'explanation','example' */])->toArray();
 
