@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="zh-Hant-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>搜索 - 吳魚詞典</title>
+    <link rel="stylesheet" href="../LightDict.css" />
+    <link href="https://cdn.bootcss.com/twitter-bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet">
+    <script src="http://cdn.staticfile.org/jquery/3.4.1/jquery.min.js"></script>
+
+</head>
+
+<body>
+    <!-- 顶部导航 -->
+
+    <div class="common_header"></div>
+    <!--顶部导航 over-->
+
+    <!--中部主体-->
+    <main role="main">
+        <div class="container mt-3">
+            <div class="row">
+                <div class="col-md-2 mb-3">
+                    <div class="list-group" id="dict_search_list">
+                        <!-- <a href="#" class="list-group-item list-group-item-action active">
+                            Cras justo odio
+                        </a>
+                        <a href="#dict_detail_main" class="list-group-item list-group-item-action">Dapibus ac facilisis in</a>
+                        <a href="#" class="list-group-item list-group-item-action">Morbi leo risus</a>
+                        <a href="#" class="list-group-item list-group-item-action">Porta ac consectetur ac</a> -->
+                    </div>
+                </div>
+                <div class="col-md-10" id="dict_detail_main">
+                    
+                </div>
+            </div>
+        </div>
+    </main>
+    <!--中部主体 over-->
+
+    <!--footer-->
+    <div class="common_footer"></div>
+    <!--footer over-->
+    <script>
+        $(".common_header").load("../common/header.html");
+        // $(".common_footer").load("../common/footer.html");
+
+    </script>
+
+    <script src="https://cdn.bootcss.com/twitter-bootstrap/4.3.1/js/bootstrap.js"></script>
+
+
+    <script src="../LightDict.js"></script>
+    <script>
+        $(document).ready(function () {
+            // $('button.navbar-toggler').click();
+
+            var keyword = getUrlParameter('keyword');
+            if (keyword == '') {
+                $('#dict_detail_main').html('<div class="alert alert-warning" role="alert">請輸入字或詞</div>');
+                return false;
+            }
+            $("#nav_top_search_text").val(keyword);
+
+            $.get('/fullentry/index?keyword=' + keyword,function(repoData){
+                if (repoData.data=='') {
+                    $('#dict_detail_main').html('<div class="alert alert-secondary" role="alert">沒查著</div>');
+                }
+
+                dict_search_list = '';
+                $.each(repoData.data,function(key,val){
+                    console.log(key,val);
+                    dict_search_list = dict_search_list + '<a href="#dict_detail_main" class="dict_search_list_item list-group-item list-group-item-action"'+
+                    ' data-entry_id="'+ val.entry_id +'" > '+ val.title +' </a>';
+                });
+
+                $("#dict_search_list").html(dict_search_list);
+            });
+
+            console.log('endddddddddd');
+
+            $("main").on('click','.dict_search_list_item',function () {
+                entry_id = $(this).data('entry_id');
+                title = $(this).html();
+                console.log(title);
+                $('title').html(title + '  - 吳魚詞典');
+            });
+        });
+
+    </script>
+</body>
+
+</html>
