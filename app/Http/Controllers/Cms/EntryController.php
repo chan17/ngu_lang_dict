@@ -32,8 +32,8 @@ class EntryController extends AdminController
 
         $grid->column('entry_id', '詞條ID')->sortable();
         $grid->column('title', '字/詞 方塊字')->sortable();
-        $grid->column('explanation', '字詞解釋')->openView(function () use($typePOS) {
-            $headers = ['詞性','解釋'];
+        $grid->column('explanation', '字詞釋義')->openView(function () use($typePOS) {
+            $headers = ['詞性','釋義'];
                 $rows = [];
                 foreach ($this->explanation as $key => $value) {
                     // dd($value);
@@ -88,11 +88,11 @@ class EntryController extends AdminController
             // ->creationRules(['required','max:32', "unique:entries"])
             // ->updateRules(['required','max:32', "unique:entries,title,{{id}}"]);
             
-        $form->table('explanation', '字詞解釋', function ($table) {
+        $form->table('explanation', '字詞釋義', function ($table) {
             $table->select('POS','詞性')->options(MetaType::selectOptions(function ($query){
                 return $query->where(['group'=>'POS'])->orderBy('listorder','asc');
             },''));
-            $table->text('value','解釋');
+            $table->text('value','釋義');
         });
         $form->table('example', '例句', function ($table) {
             $table->textarea('value','例句')->rows(2);

@@ -29,7 +29,7 @@ CREATE TABLE "entry" (
 "zh_cn"  CHAR(8),
 -- 音標，多個音標用 + 隔開，如：lik4(吳音)+ven3(漢音)
 "phonetic"  CHAR(22) NOT NULL,
--- 字詞解釋 多個字詞解釋用 + 隔開
+-- 字詞釋義 多個字詞釋義用 + 隔開
 "explanation"  varchar
 );
 

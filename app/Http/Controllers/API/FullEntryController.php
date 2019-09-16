@@ -38,7 +38,7 @@ class FullEntryController extends Controller
             return $this->buildJson(false, 'entry_id錯誤');
         }
 
-        $result = collect(DB::table('entri es')->whereNull('deleted_at')->where('entry_id', '=', $requestData['entry_id'])
+        $result = collect(DB::table('entries')->whereNull('deleted_at')->where('entry_id', '=', $requestData['entry_id'])
         ->select(['entry_id' ,'title','explanation','example'])->first())->toArray();
         if (empty($result)) {
             return $this->buildJson(false, '個詞條弗存在');         

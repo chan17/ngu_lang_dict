@@ -13,15 +13,96 @@ var getUrlParameter = function getUrlParameter(sParam) {
     }
 };
 
-    $(window).ready(function () {
-        console.log("dsfsdfsdfsd.js");
+var newurl;
+//向当前url添加参数，没有历史记录
+
+
+function updateQueryStringParameter(uri, key, value) {
+	if(!value) {
+		return uri;
+	}
+	var re = new RegExp("([?&])" + key + "=.*?(&|$)", "i");
+	var separator = uri.indexOf('?') !== -1 ? "&" : "?";
+	if (uri.match(re)) {
+		return uri.replace(re, '$1' + key + "=" + value + '$2');
+	}
+	else {
+		return uri + separator + key + "=" + value;
+	}
+}
+
+
+function getEntryDetail(entry_id) {
+    var phoneticsEntry = '';
+    $.get('/fullentry/detail?entry_id=' + entry_id, function (repoData) {
+        $('#dict_main_title').html(repoData.data.title);
+
+        phoneticsEntry = repoData.data.phonetics;
+        $.get('/metatype/listTree/region', function (repoData) {
+            var resultPhonetic = '';
+            var resultPhoneticChildren = '';
+            var countSubRegion = 0;
+            $.each(repoData.data, function (key, val) {
+                $.each(val.children, function (keychildren, valchildren) {
+                    $.each(phoneticsEntry, function (keyEntry, valEntry) {
+                        if (valchildren.type_id == valEntry.region_type) {
+                            resultPhoneticChildren = resultPhoneticChildren + '<tr><td class="align-middle">' + valchildren.title + '</td>' + '<td>' + valEntry.value + '</td>'
+                            countSubRegion = countSubRegion + 1;
+                            // console.log(countSubRegion);
+                        }
+                    });
+                });
+                // console.log(resultPhoneticChildren);
+                // console.log(countSubRegion);
+                // return false;
+                if (countSubRegion > 0) {
+                    resultPhonetic = '<tr>' + '<th rowspan="' + countSubRegion + '" class="align-middle"> '
+                        + val.title + ' </th> '
+                        + resultPhoneticChildren.substring(4);
+                    countSubRegion = 0;
+                }
+            });
+            $('#dict_main_phonetics').html(resultPhonetic);
+        });
+
+
+        // dict_main_explanation
+        var explanationEntry = JSON.parse(repoData.data.explanation);
+        var resultExplanation = '';
+        $.get('/metatype/list/POS', function (repoData) {
+            $.each(repoData.data, function (keyPos, valPos) {
+                $.each(explanationEntry, function (keyExplanation, valExplanation) {
+                    if (valExplanation.POS == valPos.type_id) {
+                        resultExplanation = resultExplanation + '<li class="list-group-item "> ' +
+                            '<span class="badge badge-dark mr-2">' + valPos.title + '</span> <br />' +
+                            '<p>' + valExplanation.value + '</p>';
+                    }
+                });
+            });
+
+            $('#dict_main_explanation').html(resultExplanation);
+        });
+
+        var exampleEntry = JSON.parse(repoData.data.example);
+        var resultExample = '';
+        $.each(exampleEntry, function (key, val) {
+            resultExample = resultExample + '<li>' + val.value + '</li>';
+        });
+
+        $('#dict_main_example').html(resultExample);
+
+    }); // get('/fullentry/detail?entry_id=  end
+};
+
+$(window).ready(function () {
+    console.log("(window).ready  .js");
 
     /**
      * 搜索联想。。。
      * 淘宝搜索 API 测试
      */
     //  <script src="../common/bootstrap-suggest.min.js"></script> 
-    
+
     // $("#ui_top_search2").bsSuggest({
     //     indexId: 2,             //data.value 的第几个数据，作为input输入框的内容
     //     indexKey: 1,            //data.value 的第几个数据，作为input输入框的内容
@@ -61,8 +142,4 @@ var getUrlParameter = function getUrlParameter(sParam) {
     // }).on('onUnsetSelectValue', function () {
     //     console.log("onUnsetSelectValue");
     // });
-
-
-
-      
-    });
+});

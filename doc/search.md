@@ -48,6 +48,6 @@ page_no   |否|Int| 分页页码（默认 1）|
   zh_tw: string // 繁體字
   zh_cn: string // 簡體字
   phonetic: array //音標, json 數組
-  explanation: array // 字詞解釋
+  explanation: array // 字詞釋義
 }
 ```

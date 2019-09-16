@@ -21,7 +21,10 @@
     <main role="main">
         <div class="container mt-3">
             <div class="row">
-                <div class="col-md-2 mb-3">
+                <div class="col-md-2 mb-3 pb-2 rounded" style="
+                background-color: #85d6ef3d;
+            ">
+                        <p><em>搜索結果:</em></p>
                     <div class="list-group" id="dict_search_list">
                         <!-- <a href="#" class="list-group-item list-group-item-action active">
                             Cras justo odio
@@ -53,10 +56,19 @@
 
     <script src="../LightDict.js"></script>
     <script>
-        $(document).ready(function () {
-            // $('button.navbar-toggler').click();
+        $("#dict_detail_main").load("../common/dict_main.html");
 
+        $(document).ready(function () {
             var keyword = getUrlParameter('keyword');
+            var url_entry_id = getUrlParameter('entry_id');
+            console.log(keyword,url_entry_id);
+
+            if (keyword==null && url_entry_id!= null) {
+                getEntryDetail(url_entry_id);
+                return false;
+            }
+            
+            // 搜索功能 start
             if (keyword == '') {
                 $('#dict_detail_main').html('<div class="alert alert-warning" role="alert">請輸入字或詞</div>');
                 return false;
@@ -68,24 +80,37 @@
                     $('#dict_detail_main').html('<div class="alert alert-secondary" role="alert">沒查著</div>');
                 }
 
+                // 加載第一個搜索結果詞條
+                getEntryDetail(repoData.data[0].entry_id);
+                
                 dict_search_list = '';
                 $.each(repoData.data,function(key,val){
-                    console.log(key,val);
-                    dict_search_list = dict_search_list + '<a href="#dict_detail_main" class="dict_search_list_item list-group-item list-group-item-action"'+
+                    // console.log(key,val);
+                    dict_search_list = dict_search_list + '<a href="#dict_detail_main" class="dict_search_list_item list-group-item list-group-item-action list-group-item-primary"'+
                     ' data-entry_id="'+ val.entry_id +'" > '+ val.title +' </a>';
                 });
 
                 $("#dict_search_list").html(dict_search_list);
             });
 
-            console.log('endddddddddd');
-
             $("main").on('click','.dict_search_list_item',function () {
                 entry_id = $(this).data('entry_id');
                 title = $(this).html();
                 console.log(title);
                 $('title').html(title + '  - 吳魚詞典');
+
+                // 加載詞條
+                getEntryDetail(entry_id);
+
+                // newurl = updateQueryStringParameter(window.location.href, 'entry_id', entry_id);
+                var newurl = location.pathname + '?entry_id=' +  entry_id
+                history.pushState({url: newurl, title: document.title}, document.title,newurl);
             });
+
+            // 搜索功能 end
+
+            // dict_main start
+            
         });
 
     </script>

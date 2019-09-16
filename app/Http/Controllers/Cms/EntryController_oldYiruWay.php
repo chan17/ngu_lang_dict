@@ -199,9 +199,9 @@ class EntryController extends Controller
 
             // $form->display('entry_id', '詞條ID');
             $form->text('title', '字/詞 方塊字');
-            $form->table('explanation', '字詞解釋', function ($table) {
+            $form->table('explanation', '字詞釋義', function ($table) {
                 $table->select('POS','詞性')->options(\App\Models\Meta\MetaType::where(['group'=>'POS'])->orderBy('listorder','desc')->pluck('title','type_id'));
-                $table->text('value','解釋');
+                $table->text('value','釋義');
             });
             $form->table('example', '例句', function ($table) {
                 $table->textarea('value','例句')->rows(2);
@@ -294,8 +294,8 @@ class EntryController extends Controller
 
             $grid->column('entry_id', '詞條ID')->sortable();
             $grid->column('title', '字/詞 方塊字')->sortable();
-            $grid->column('explanation', '字詞解釋')->openView(function () {
-                $headers = [/* '詞性', */'解釋'];
+            $grid->column('explanation', '字詞釋義')->openView(function () {
+                $headers = [/* '詞性', */'釋義'];
                 $rows = $this->explanation;
                 foreach ($rows as $key => $value) {
                     unset($rows[$key]['POS']);
