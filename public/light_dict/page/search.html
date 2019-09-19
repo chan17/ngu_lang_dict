@@ -64,6 +64,7 @@
             var url_entry_id = getUrlParameter('entry_id');
             console.log(keyword,url_entry_id);
 
+            // 显示单个 词条模式
             if (keyword==null && url_entry_id!= null) {
                 getEntryDetail(url_entry_id);
                 return false;

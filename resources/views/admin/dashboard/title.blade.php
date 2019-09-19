@@ -44,6 +44,14 @@
     </ol>
 </div>
 
+<h4>注意</h4>
+<ol>
+        <li>
+            目前是用的臨時域名，以後域名會變動。
+
+        </li>
+    </ol>
+
 <h4>聯繫方式</h4>
 <div class="row">
     <div class="col-md-3">

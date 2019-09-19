@@ -69,6 +69,7 @@ class EntryController extends AdminController
             $actions->disableView();
             $url = route('cms.phonetics.index',['entry_id'=>$actions->row->entry_id]);
             $actions->append('<a href="' . $url .'" >&nbsp; 跳轉到註音</a>');
+            $actions->append('&nbsp;&nbsp;<a href="/light_dict/page/search.html?entry_id=' . $actions->row->entry_id .'" > 打开词条</a>');
              
         });
         

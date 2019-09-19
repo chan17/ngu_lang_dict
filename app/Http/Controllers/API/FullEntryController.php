@@ -20,7 +20,7 @@ class FullEntryController extends Controller
         }
         
         // 简体转换成繁体
-        // $requestData['keyword'] = Chinese::toTraditional($requestData['keyword'])[0];
+        $requestData['keyword'] = Chinese::toTraditional($requestData['keyword'])[0];
         // dd($requestData['keyword']);
         
         $resEntries = DB::table('entries')->whereNull('deleted_at')->where('title', 'like', '%'.$requestData['keyword'].'%')

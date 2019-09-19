@@ -36,6 +36,7 @@ function getEntryDetail(entry_id) {
     var phoneticsEntry = '';
     $.get('/fullentry/detail?entry_id=' + entry_id, function (repoData) {
         $('#dict_main_title').html(repoData.data.title);
+        $('title').html(repoData.data.title + '  - 吳魚詞典');
 
         phoneticsEntry = repoData.data.phonetics;
         $.get('/metatype/listTree/region', function (repoData) {
