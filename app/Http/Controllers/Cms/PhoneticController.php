@@ -216,7 +216,7 @@ class PhoneticController extends Controller
 
         return Admin::grid(Phonetic::class, function (Grid $grid) {
             // 考虑是否需要scope和排序
-            // $grid->model()->orderBy('listorder', 'asc');
+            $grid->model()->orderBy('created_at', 'desc');
 
             // // 添加按钮
             // if (!\Gate::check('cms.phonetics.create')) {
@@ -254,18 +254,10 @@ class PhoneticController extends Controller
             if (Admin::user()->cannot('cms.phonetics.create')) {
                 $grid->disableCreation();
             }
-
-            // 编辑和删除按钮
+            
             $grid->actions(function ($actions) {
-                // 编辑按钮
-                if (Admin::user()->cannot('cms.phonetics.edit')) {
-                    $actions->disableEdit();
-                }
-                // 删除按钮
-                if (Admin::user()->cannot('cms.phonetics.destroy')) {
-                    $actions->disableDelete();
-                }
-            });
+                $actions->disableView();
+            });    
 
             // 导出按钮
             if (Admin::user()->cannot('cms.phonetics.export')) {

@@ -36,32 +36,42 @@ function getEntryDetail(entry_id) {
     var phoneticsEntry = '';
     $.get('/fullentry/detail?entry_id=' + entry_id, function (repoData) {
         $('#dict_main_title').html(repoData.data.title);
-        $('title').html(repoData.data.title + '  - 吳魚詞典');
+        $('title').html(repoData.data.title + '  - 吳韻');
 
+        // 地区
         phoneticsEntry = repoData.data.phonetics;
         $.get('/metatype/listTree/region', function (repoData) {
             var resultPhonetic = '';
-            var resultPhoneticChildren = '';
+            var resultRows = '';
             var countSubRegion = 0;
-            $.each(repoData.data, function (key, val) {
+            // 多地区语音，分片区
+            /* $.each(repoData.data, function (key, val) {
                 $.each(val.children, function (keychildren, valchildren) {
                     $.each(phoneticsEntry, function (keyEntry, valEntry) {
                         if (valchildren.type_id == valEntry.region_type) {
-                            resultPhoneticChildren = resultPhoneticChildren + '<tr><td class="align-middle">' + valchildren.title + '</td>' + '<td>' + valEntry.value + '</td>'
+                            resultRows = resultRows + '<tr><td class="align-middle">' + valchildren.title + '</td>' + '<td>' + valEntry.value + '</td>'
                             countSubRegion = countSubRegion + 1;
                             // console.log(countSubRegion);
                         }
                     });
                 });
-                // console.log(resultPhoneticChildren);
+                // console.log(resultRows);
                 // console.log(countSubRegion);
                 // return false;
                 if (countSubRegion > 0) {
                     resultPhonetic = '<tr>' + '<th rowspan="' + countSubRegion + '" class="align-middle"> '
                         + val.title + ' </th> '
-                        + resultPhoneticChildren.substring(4);
+                        + resultRows.substring(4);
                     countSubRegion = 0;
                 }
+            }); */
+            // 就几个 一级父类语言区
+            $.each(repoData.data, function (key, val) {
+                $.each(phoneticsEntry, function (keyEntry, valEntry) {
+                    if (val.type_id == valEntry.region_type) {
+                        resultPhonetic = resultPhonetic + '<tr><td class="align-middle">' + val.title + '</td>' + '<td>' + valEntry.value + '</td>'
+                    }
+                });
             });
             $('#dict_main_phonetics').html(resultPhonetic);
         });

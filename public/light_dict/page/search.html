@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title>搜索 - 吳魚詞典</title>
+    <title>搜索 - 吳韻</title>
     <link rel="stylesheet" href="../LightDict.css" />
     <link href="https://cdn.bootcss.com/twitter-bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet">
 
@@ -55,7 +55,7 @@
     <script src="https://cdn.bootcss.com/twitter-bootstrap/4.3.1/js/bootstrap.js"></script>
 
 
-    <script src="../LightDict.js"></script>
+    <script src="../LightDict.js?v=1.2"></script>
     <script>
         $("#dict_detail_main").load("../common/dict_main.html");
 
@@ -99,7 +99,7 @@
                 entry_id = $(this).data('entry_id');
                 title = $(this).html();
                 console.log(title);
-                $('title').html(title + '  - 吳魚詞典');
+                $('title').html(title + '  - 吳韻');
 
                 // 加載詞條
                 getEntryDetail(entry_id);
